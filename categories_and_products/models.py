@@ -5,9 +5,14 @@ from django.db import models
 
 
 
+class SubCategory(models.Model):
+    name = models.CharField(max_length=100)
+
+
 
 
 class Category(models.Model):
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     Category_name = models.CharField(max_length=250,unique = True,)
     display_name =  models.CharField(max_length=250, blank=True,null = True)
     categoryslug = models.SlugField(unique=True, db_index=True,blank=True,null = True)
@@ -35,6 +40,8 @@ def upload_product_images(instance, filename):
 Medical_Questions = (
         ("Restaurant", "Restaurant"),
         ("Cloud Kitchen", "Cloud Kitchen"),)
+
+
 
 
 class Product(models.Model):
