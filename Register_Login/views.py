@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view
 # Rest Libraries
 from rest_framework.response import Response
 from rest_framework import status
+from Register_Login.models import Profile
 from Register_Login.serializers import LoginSerializer, UserSerializer
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -17,7 +18,6 @@ from rest_framework.views import APIView
 from django.middleware.csrf import get_token
 
 # Importing Models
-from Register_Login.models import Profile
 
 # from cart_and_orders.models import Cart
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -65,11 +65,9 @@ class get_active_users(APIView):
         return JsonResponse({"Names": serializer.data}, safe=False)
 
 
-# Login Users
-@csrf_protect
-@api_view(['POST','GET',])
-def LoginView(request):
-    if request.method == 'POST':
+# Login
+class Login_users_API(APIView):
+    def post(self,request,):
         serializer = LoginSerializer(data=request.data, context={'request': request})
 
         if serializer.is_valid(raise_exception=True):
@@ -89,10 +87,7 @@ def LoginView(request):
                 return Response({"message": "Invalid credentials","code":status.HTTP_403_FORBIDDEN}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response(serializer.errors, status=status.HTTP_403_FORBIDDEN)
-    if request.method == 'GET':
-        all = Profile.objects.filter(is_active = True,)
-        serializer = UserSerializer(all,many = True)
-        return JsonResponse({"Names": serializer.data}, safe=True,status = status.HTTP_200_OK)
+
 
 # Get User by Id
 @authentication_classes([JWTAuthentication])

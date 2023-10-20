@@ -1,5 +1,5 @@
 from django.contrib import admin
-from categories_and_products.models import Category, Product, SubCategory
+from categories_and_products.models import Category, Product,Company
 from django.forms import CheckboxSelectMultiple
 from django.db import models
 # Register your models here.
@@ -54,6 +54,6 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(Category, Categories_Admin)
-admin.site.register(Product, ProductAdmin)
-admin.site.register(SubCategory)
+admin.site.register(Category,)
+admin.site.register(Product,)
+admin.site.register(Company,)

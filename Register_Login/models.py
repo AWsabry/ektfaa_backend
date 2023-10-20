@@ -52,12 +52,12 @@ class Profile(AbstractBaseUser,PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_delivery = models.BooleanField(default=False)
-    nu_id = models.CharField(max_length=60, null=True,blank = True)
+    Country = models.CharField(max_length=60, null=True,blank = True)
     city = models.CharField(max_length=60, null=True,blank = True)
     PhoneNumber =  models.CharField(max_length=20, null=True)
+    age = models.CharField(max_length=60, null=True,blank = True)
+    gender = models.CharField(max_length=60, null=True,blank = True)
     last_modified = models.DateTimeField(auto_now=True)
-    is_operation = models.BooleanField(default=False)
-    Wallet = models.FloatField(default= 0, blank= True,null = True)
 
     USERNAME_FIELD = 'email'
     objects = UserManager()

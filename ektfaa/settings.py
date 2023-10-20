@@ -26,9 +26,7 @@ SECRET_KEY = ')ff-0w=roy2f8$%kfi6qmmy0b+0#op6*jg^mn+q031eo9r18=1'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'http://ektfaa.com',
-    'https://ektfaa.com',
-    'https://www.ektfaa.com',
+
 ]
 
 
@@ -139,5 +137,6 @@ MEDIA_ROOT = BASE_DIR / "uploads"
 MEDIA_URL = "/uploads/"
 
 AUTH_USER_MODEL = 'Register_Login.Profile'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TIME_ZONE = 'Africa/Cairo'

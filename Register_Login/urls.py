@@ -12,7 +12,7 @@ urlpatterns = [
     # APIs URL
     path('get_csrf_token_api/',view = views.get_csrf_token_api.as_view(), name = "get_csrf_token_api"),
     path('create_users_API/', view= views.create_users_API.as_view(), name='create_users_API'),
-    path('login_view/', view= views.LoginView, name='login_view'),
+    path('login_view/', view= views.Login_users_API.as_view(), name='login_view'),
     path('get_user_by_email/<str:email>', view= views.get_user_by_email.as_view(), name='get_user_by_email'),
     path('get_active_users/', view= views.get_active_users.as_view(), name='get_active_users'),
 
