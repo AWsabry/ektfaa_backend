@@ -25,7 +25,11 @@ SECRET_KEY = ')ff-0w=roy2f8$%kfi6qmmy0b+0#op6*jg^mn+q031eo9r18=1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'http://ektfaa.com',
+    'https://ektfaa.com',
+    'https://www.ektfaa.com',
+]
 
 
 # Application definition
