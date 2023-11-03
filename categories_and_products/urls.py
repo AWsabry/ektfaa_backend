@@ -11,7 +11,7 @@ urlpatterns = [
 
     # APIs URL
     path('category/', view=views.index_category, name='category'),
-    path('get_products/<str:searched>', view= views.GetSearchedProducts.as_view(), name='get_products'),
+    path('get_products/<str:phone>/<str:searched>/', view= views.GetSearchedProducts.as_view(), name='get_products'),
 
 
     

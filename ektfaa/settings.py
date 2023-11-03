@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
 import os
 from pathlib import Path
 
@@ -33,6 +32,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'import_export',
     'Register_Login',
     'categories_and_products',
     'django.contrib.admin',
@@ -125,11 +125,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 # STATIC_ROOT = '/home/fekrrbqw/x-eats.com/static'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",]
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",]
 
 
 # MEDIA_ROOT = "/home/fekrrbqw/x-eats.com/uploads"
@@ -140,3 +142,4 @@ AUTH_USER_MODEL = 'Register_Login.Profile'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TIME_ZONE = 'Africa/Cairo'
+

@@ -27,7 +27,6 @@ from rest_framework.decorators import authentication_classes, permission_classes
 
 
 
-
 # Get CSRF Token
 class get_csrf_token_api(APIView):
     def get(self,request):
@@ -38,20 +37,23 @@ class get_csrf_token_api(APIView):
 
 class create_users_API(APIView):
     def post(self,request,):
-        serializer = UserSerializer(data= request.data,partial=True)
+        serializer = UserSerializer(data= request.data,)
         if serializer.is_valid():
             user = Profile.objects.create_user(
                     email=request.data['email'],
                     first_name=request.data['first_name'],
                     last_name=request.data['last_name'],
                     password=request.data['password'],
-                    city=serializer.validated_data['city'],
+                    city=request.data['city'],
                     PhoneNumber=request.data['PhoneNumber'],
+                    Country=request.data['Country'],
+                    age = request.data['age'], 
+                    gender = request.data['gender'],
                     is_active = True,
                     # Location = Location.objects.get(id = request.data['Location'])
                 )
             if user:
-                return Response("User & Cart are Created Successfully", status = status.HTTP_200_OK)
+                return Response("User Created Successfully", status = status.HTTP_200_OK)
             else:
                 return Response("Error Creating User", status = status.HTTP_403_FORBIDDEN)
         else:
@@ -105,7 +107,37 @@ class get_user_by_email(APIView):
         return JsonResponse({"Names": serializer.data, "exist":exist}, safe=True,status = status.HTTP_403_FORBIDDEN)
     
 
+class get_user_by_phone(APIView):
+    def get(self,request,phone,*args, **kwargs):
+        all = Profile.objects.filter(is_active = True,PhoneNumber=phone)
+        serializer = UserSerializer(all,many = True)
+        return JsonResponse({"Names": serializer.data}, safe=True,status = status.HTTP_200_OK)
 
 
+class UpdateUserCountry(APIView):
+    def post(self, request, phone):
+        updated_country = request.data.get('updated_country')  # Assuming the updated country is sent in the request data
+        if not updated_country:
+            return JsonResponse({"message": "Please provide the updated country"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Find the user's profile
+            user_profile = Profile.objects.get(is_active=True, PhoneNumber=phone)
+
+            # Update the user's country
+            user_profile.Country = updated_country
+            user_profile.save()
+            # Serialize the updated user profile
+            serializer = UserSerializer(user_profile)
+
+            return JsonResponse({"message": "Country Updated"}, safe=True, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return JsonResponse({"message": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({"message": "An error occurred while updating the country"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            
+            
+            
 def index(request):
     return render(request, "index.html")
