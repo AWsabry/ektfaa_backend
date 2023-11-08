@@ -6,6 +6,17 @@ from django.db.models import Q
 
 stemmer = PorterStemmer()
 
+class Tags(models.Model):
+    english_name = models.CharField(max_length = 250, blank = True, null= True)
+    arabic_name = models.CharField(max_length = 250, blank = True, null= True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Tags"
+
+    def __str__(self):
+        return str(self.english_name)
+    
 
 
 class Company(models.Model):
@@ -87,6 +98,7 @@ class Product(models.Model):
     country_of_existence = models.CharField(max_length = 250, blank = True, null= True)
     importer_name = models.CharField(max_length = 250, blank = True, null= True)
     franchise = models.BooleanField(default=False)
+    tag = models.ManyToManyField(Tags,blank=True,null=True)
     range_of_prices = models.CharField(max_length = 250, blank = True, null= True)
     year_of_import = models.CharField(max_length = 250, blank = True, null= True)
     created = models.DateTimeField(auto_now_add=True)
@@ -98,5 +110,8 @@ class Product(models.Model):
         arabic_string = self.product_arabic_name
         arabic_string.encode('unicode-escape')
         return arabic_string
+    
+    class Meta:
+        verbose_name_plural = "Products"
 
 

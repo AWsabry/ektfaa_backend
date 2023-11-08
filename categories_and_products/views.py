@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils import translation
 from rest_framework.views import APIView
+from django.db.models import Q
+
 # Importing the utilts file
 
 
@@ -43,7 +45,6 @@ class GetSearchedProducts(APIView):
         arabic_pattern = r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+'
 
         is_arabic = bool(re.search(arabic_pattern, decoded_user_input))
-        print(is_arabic)
 
         if is_arabic:
             search_pattern = pattern.format(re.escape(decoded_user_input))
@@ -54,14 +55,14 @@ class GetSearchedProducts(APIView):
 
 
         # Get products matching the search in English or Arabic names with avoid=False and the user's country
-        not_avoided_english_results = Product.objects.filter(avoid=False, product_english_name__iregex=search_pattern, country_of_existence=user.Country)
+        not_avoided_english_results = Product.objects.filter(Q(avoid=False, product_english_name__iregex=search_pattern, country_of_existence=user.Country) | Q(tag__english_name__iregex = search_pattern))
         not_avoided_arabic_results = Product.objects.filter(avoid=False, product_arabic_name__iregex=search_pattern, country_of_existence=user.Country)
 
         company_english = Product.objects.filter(avoid=True, company__englishName__iregex=search_pattern, country_of_existence=user.Country)
         company_arabic = Product.objects.filter(avoid=True, company__arabicName__iregex=search_pattern, country_of_existence=user.Country)
 
         # Combine the English and Arabic results using OR
-        products = not_avoided_english_results | not_avoided_arabic_results
+        products = not_avoided_english_results | not_avoided_arabic_results | company_english | company_arabic
 
         # Check if products exist based on the search
         if products.exists():
@@ -93,7 +94,7 @@ class GetSearchedProducts(APIView):
                     #         return Response(response_data_from_category, status=status.HTTP_200_OK)
                     #     else:
                             # return Response({"message": "No matching products found in the same category"}, status=status.HTTP_302_FOUND)
-                    return Response({"message": "No matching products found in the same Sub-category"}, status=status.HTTP_302_FOUND)
+                    return Response({"message": "No local products found in the same Sub-category"}, status=status.HTTP_302_FOUND)
                
             elif sub_category_arabic:
                 print("Arabic")
@@ -112,9 +113,9 @@ class GetSearchedProducts(APIView):
                     #         return Response(response_data_from_arabic_category, status=status.HTTP_200_OK)
                     #     else:
                     #         return Response({"message": "No matching products found in the same category"}, status=status.HTTP_302_FOUND)                    
-                    return Response({"message": "No matching products found in the same Arabic Sub-category"}, status=status.HTTP_302_FOUND)
+                    return Response({"message": "No local products found in the same Arabic Sub-category"}, status=status.HTTP_302_FOUND)
             else:
-                return Response({"message": "No matching products found"}, status=status.HTTP_302_FOUND)
+                return Response({"message": "No local products found"}, status=status.HTTP_302_FOUND)
 
     
 

@@ -1,9 +1,11 @@
 from django.contrib import admin
-from categories_and_products.models import Category, Product,Company, SubCategory,Sector
+from categories_and_products.models import Category, Product,Company, SubCategory,Sector,Tags
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
+from django.forms import CheckboxSelectMultiple
+from django.db import models
 
 class CompanyData(resources.ModelResource):
     class Meta:
@@ -60,12 +62,14 @@ class ProductAdmin(ImportExportModelAdmin):
     search_fields = ('product_english_name', 'product_arabic_name', 'sub_category__Sub_Category_English_name', 'company__englishName')
     prepopulated_fields = {'productslug': ('product_english_name',)}
     autocomplete_fields = ['sub_category','company']
+    formfield_overrides = {
+        models.ManyToManyField : {'widget' : CheckboxSelectMultiple},
+    }
 
 
 
-class keyWordAdmin(admin.ModelAdmin):
-
-    list_display = ('keyword')
+class TagsAdmin(admin.ModelAdmin):
+    list_display = ('english_name')
 
 
 admin.site.register(Sector,SectorAdmin)
@@ -73,3 +77,4 @@ admin.site.register(Category,CategoryAdmin)
 admin.site.register(SubCategory,SubCategoryAdmin)
 admin.site.register(Product,ProductAdmin)
 admin.site.register(Company,CompanyAdmin)
+admin.site.register(Tags,)
