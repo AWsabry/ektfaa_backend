@@ -1,7 +1,12 @@
 
 from django.urls import reverse
 from django.db import models
-from django.db.models import F
+from nltk.stem import PorterStemmer
+from django.db.models import Q
+
+stemmer = PorterStemmer()
+
+
 
 class Company(models.Model):
     englishName = models.CharField(max_length=100,blank=True,null=True)
@@ -22,8 +27,6 @@ class Company(models.Model):
     class Meta:
         verbose_name_plural = "Companies"
 
-
-
 class Sector(models.Model):
     englishName = models.CharField(max_length=250,unique = True,)
     arabicName = models.CharField(max_length=250,unique = True,)
@@ -37,7 +40,6 @@ class Sector(models.Model):
 
     class Meta:
         verbose_name_plural = "Sectors"
-
 
 class Category(models.Model):
     Category_English_name = models.CharField(max_length=250,unique = True,)
@@ -57,7 +59,6 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
-
 
 class SubCategory(models.Model):
     Sub_Category_English_name = models.CharField(max_length=250,unique = True,blank=True,null = True,)
@@ -97,4 +98,5 @@ class Product(models.Model):
         arabic_string = self.product_arabic_name
         arabic_string.encode('unicode-escape')
         return arabic_string
-    
+
+

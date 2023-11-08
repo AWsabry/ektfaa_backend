@@ -32,9 +32,6 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'import_export',
-    'Register_Login',
-    'categories_and_products',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
+    'import_export',
+    'Register_Login',
+    'categories_and_products',
+
 ]
 
 MIDDLEWARE = [
@@ -87,6 +87,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 
 
 # Password validation
@@ -142,4 +143,3 @@ AUTH_USER_MODEL = 'Register_Login.Profile'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TIME_ZONE = 'Africa/Cairo'
-

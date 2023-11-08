@@ -28,7 +28,7 @@ class ProductsData(resources.ModelResource):
 
 class CompanyAdmin(ImportExportModelAdmin):
     resources_classes = [CompanyData]
-    list_display = ('englishName', 'arabicName', 'created',)
+    list_display = ('englishName', 'arabicName', 'created','id')
     list_filter = ('created',)
     search_fields = ('englishName', 'arabicName',)
 
@@ -48,7 +48,7 @@ class CategoryAdmin(ImportExportModelAdmin):
 
 class SubCategoryAdmin(ImportExportModelAdmin):
     resources_classes = [SubCategoryData]
-    list_display = ('Sub_Category_English_name','Sub_Category_Arabic_name','category', 'created')
+    list_display = ('Sub_Category_English_name','Sub_Category_Arabic_name','category', 'created','id')
     list_filter = ('created',)
     search_fields = ('Sub_Category_English_name', 'Sub_Category_Arabic_name',)
 
@@ -63,6 +63,9 @@ class ProductAdmin(ImportExportModelAdmin):
 
 
 
+class keyWordAdmin(admin.ModelAdmin):
+
+    list_display = ('keyword')
 
 
 admin.site.register(Sector,SectorAdmin)
