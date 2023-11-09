@@ -38,8 +38,10 @@ class GetSearchedProducts(APIView):
             return Response({"message": "Multiple profiles found for the given phone number"}, status=status.HTTP_400_BAD_REQUEST)
         
 
+
         decoded_user_input = unquote(searched)
         search_pattern = decoded_user_input
+
 
 
         # Get products matching the search in English or Arabic names with avoid=False and the user's country
@@ -91,9 +93,26 @@ class UserUploadsProducts(APIView):
     def post(self, request,*args, **kwargs):
         serializer = UserUploadSerializer(data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response("Added To Cart", status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if Profile.objects.filter(PhoneNumber=request.data['user']).exists():
+                user_instance = Profile.objects.get(PhoneNumber=request.data['user'])
+                user_create = UserUpload.objects.create(
+                    user = user_instance,
+                    product_english_name = request.data['product_english_name'],
+                    product_arabic_name = request.data['product_arabic_name'],
+                    image = request.data['image'],
+                    user_tags = request.data['user_tags'],
+                    description = request.data['description'],
+                    serial_number = request.data['serial_number'],
+                    )
+                if user_create:
+                    response = {"Names": serializer.data}
+                    return Response(response,status=status.HTTP_200_OK)
+                else:
+                    Response( {"Message": "Error in Creating the User Upload"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                Response( {"Message": "User Does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request):
         user_uploads = UserUpload.objects.all()
@@ -109,5 +128,14 @@ class SubCategoryView(APIView):
         serializer = SubCategorySerializer(subCategory, many=True)
         response = {"Names": serializer.data}
         return Response(response,status=status.HTTP_200_OK)
+
+
+class UserSearchedProducts(APIView):    
+    def get(self,request,phone,*args, **kwargs):
+        user_uploads = UserUpload.objects.filter(user__PhoneNumber=phone).order_by('-publish','-created')
+        serializer = UserUploadSerializer(user_uploads, many=True)
+        response = {"Names": serializer.data}
+        return Response(response,status=status.HTTP_200_OK)
+        
 
 
