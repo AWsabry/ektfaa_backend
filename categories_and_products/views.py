@@ -39,19 +39,7 @@ class GetSearchedProducts(APIView):
         
 
         decoded_user_input = unquote(searched)
-        
-        pattern = r'\b{}\b'
-
-        arabic_pattern = r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+'
-
-        is_arabic = bool(re.search(arabic_pattern, decoded_user_input))
-
-        if is_arabic:
-            search_pattern = pattern.format(re.escape(decoded_user_input))
-            search_pattern = r'(?i)' + search_pattern
-        else:
-            search_pattern = pattern.format(re.escape(decoded_user_input))
-            search_pattern = r'(?i)' + search_pattern
+        search_pattern = decoded_user_input
 
 
         # Get products matching the search in English or Arabic names with avoid=False and the user's country
@@ -62,7 +50,7 @@ class GetSearchedProducts(APIView):
         company_arabic = Product.objects.filter(Q(avoid=True, company__arabicName__iregex=search_pattern, country_of_existence=user.Country) | Q(tag__arabic_name__iregex = search_pattern))
 
         # Combine the English and Arabic results using OR
-        products = not_avoided_english_results | not_avoided_arabic_results | company_english | company_arabic
+        products = not_avoided_english_results | not_avoided_arabic_results
 
         # Check if products exist based on the search
         if products.exists():

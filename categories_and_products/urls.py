@@ -14,8 +14,4 @@ urlpatterns = [
     path('get_products/<str:phone>/<str:searched>/', view= views.GetSearchedProducts.as_view(), name='get_products'),
     path('user_uploads/', view= views.UserUploadsProducts.as_view(), name='user_uploads'),
     path('sub_category/', view= views.SubCategoryView.as_view(), name='sub_category'),
-
-
-    
-
 ]

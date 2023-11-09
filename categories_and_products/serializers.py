@@ -77,6 +77,7 @@ class ProductsSerializer(serializers.ModelSerializer):
     image =  serializers.CharField(source='company.image',allow_null = True)
     sub_category =  serializers.CharField(source='sub_category.Sub_Category_English_name',allow_null = True)
     company =  serializers.CharField(source='company.englishName',allow_null = True)
+    
     class Meta:
         model = Product
         fields = '__all__'
