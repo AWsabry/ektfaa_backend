@@ -1,5 +1,5 @@
 from django.contrib import admin
-from categories_and_products.models import Category, Product,Company, SubCategory,Sector,Tags
+from categories_and_products.models import Category, Product,Company, SubCategory,Sector,Tags,UserUpload
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources, fields
@@ -72,9 +72,13 @@ class TagsAdmin(admin.ModelAdmin):
     list_display = ('english_name')
 
 
+class UserUploadAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+
 admin.site.register(Sector,SectorAdmin)
 admin.site.register(Category,CategoryAdmin)
 admin.site.register(SubCategory,SubCategoryAdmin)
 admin.site.register(Product,ProductAdmin)
 admin.site.register(Company,CompanyAdmin)
 admin.site.register(Tags,)
+admin.site.register(UserUpload,UserUploadAdmin)

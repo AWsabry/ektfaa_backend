@@ -8,16 +8,15 @@ from rest_framework import status
 from django.utils import translation
 from rest_framework.views import APIView
 from django.db.models import Q
+import requests
 
 # Importing the utilts file
 
 
 # from cart_and_orders.models import Cart
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from rest_framework.permissions import IsAuthenticated
-from .models import Product,Category
-from .serializers import ProductsSerializer
+from .models import Product,Category, UserUpload,SubCategory,Company,Sector,Tags
+from .serializers import ProductsSerializer, SubCategorySerializer, UserUploadSerializer
 from urllib.parse import unquote
 from Register_Login.models import Profile
 import re
@@ -38,8 +37,9 @@ class GetSearchedProducts(APIView):
         except MultipleObjectsReturned:
             return Response({"message": "Multiple profiles found for the given phone number"}, status=status.HTTP_400_BAD_REQUEST)
         
-        decoded_user_input = unquote(searched)
 
+        decoded_user_input = unquote(searched)
+        
         pattern = r'\b{}\b'
 
         arabic_pattern = r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+'
@@ -56,10 +56,10 @@ class GetSearchedProducts(APIView):
 
         # Get products matching the search in English or Arabic names with avoid=False and the user's country
         not_avoided_english_results = Product.objects.filter(Q(avoid=False, product_english_name__iregex=search_pattern, country_of_existence=user.Country) | Q(tag__english_name__iregex = search_pattern))
-        not_avoided_arabic_results = Product.objects.filter(avoid=False, product_arabic_name__iregex=search_pattern, country_of_existence=user.Country)
+        not_avoided_arabic_results = Product.objects.filter(Q(avoid=False, product_arabic_name__iregex=search_pattern, country_of_existence=user.Country) | Q(tag__arabic_name__iregex = search_pattern)) 
 
-        company_english = Product.objects.filter(avoid=True, company__englishName__iregex=search_pattern, country_of_existence=user.Country)
-        company_arabic = Product.objects.filter(avoid=True, company__arabicName__iregex=search_pattern, country_of_existence=user.Country)
+        company_english = Product.objects.filter(Q(avoid=True, company__englishName__iregex=search_pattern, country_of_existence=user.Country) | Q(tag__english_name__iregex = search_pattern))
+        company_arabic = Product.objects.filter(Q(avoid=True, company__arabicName__iregex=search_pattern, country_of_existence=user.Country) | Q(tag__arabic_name__iregex = search_pattern))
 
         # Combine the English and Arabic results using OR
         products = not_avoided_english_results | not_avoided_arabic_results | company_english | company_arabic
@@ -75,10 +75,6 @@ class GetSearchedProducts(APIView):
             sub_category = Product.objects.filter(avoid=True, product_english_name__iregex=search_pattern, country_of_existence=user.Country).values('sub_category').first()
             sub_category_arabic = Product.objects.filter(avoid=True, product_arabic_name__iregex=search_pattern, country_of_existence=user.Country).values('sub_category').first()
 
-            # Find Products in the same category in case their is no products in the sub-category
-            # category = Product.objects.filter(avoid=True, product_english_name__icontains=search_pattern, country_of_existence=user.Country,).values('sub_category__category').first()
-            # arabic_category = Product.objects.filter(avoid=True, product_arabic_name__icontains=search_pattern, country_of_existence=user.Country,).values('sub_category__category').first()
-
             if sub_category:
                 related_products = Product.objects.filter(avoid=False, sub_category=sub_category['sub_category'], country_of_existence=user.Country)
                 if related_products.exists():
@@ -86,14 +82,7 @@ class GetSearchedProducts(APIView):
                     response_data = {"Names": serializer.data}
                     return Response(response_data, status=status.HTTP_200_OK)
                 else:
-                    # if category:
-                    #     related_products_from_category_english = Product.objects.filter(avoid=False, sub_category__category=category['sub_category__category'], country_of_existence=user.Country)
-                    #     if related_products_from_category_english.exists():
-                    #         serializer_english_category = ProductsSerializer(related_products_from_category_english, many=True)
-                    #         response_data_from_category = {"Names": serializer_english_category.data}
-                    #         return Response(response_data_from_category, status=status.HTTP_200_OK)
-                    #     else:
-                            # return Response({"message": "No matching products found in the same category"}, status=status.HTTP_302_FOUND)
+
                     return Response({"message": "No local products found in the same Sub-category"}, status=status.HTTP_302_FOUND)
                
             elif sub_category_arabic:
@@ -103,19 +92,34 @@ class GetSearchedProducts(APIView):
                     serializer_arabic = ProductsSerializer(related_products_arabic, many=True)
                     response_data_arabic = {"Names": serializer_arabic.data}
                     return Response(response_data_arabic, status=status.HTTP_200_OK)
-                else:
-                    # if arabic_category:
-                    #     related_products_from_category_arabic = Product.objects.filter(avoid=False, sub_category__category=arabic_category['sub_category__category'], country_of_existence=user.Country)
-                    #     if related_products_from_category_arabic.exists():
-                    #         serializer_arabic_category = ProductsSerializer(related_products_from_category_arabic, many=True)
-                    #         response_data_from_arabic_category = {"Names": serializer_arabic_category.data}
-                    #         print(response_data_from_arabic_category)
-                    #         return Response(response_data_from_arabic_category, status=status.HTTP_200_OK)
-                    #     else:
-                    #         return Response({"message": "No matching products found in the same category"}, status=status.HTTP_302_FOUND)                    
+                else:                
                     return Response({"message": "No local products found in the same Arabic Sub-category"}, status=status.HTTP_302_FOUND)
             else:
                 return Response({"message": "No local products found"}, status=status.HTTP_302_FOUND)
 
     
+
+class UserUploadsProducts(APIView):
+    def post(self, request,*args, **kwargs):
+        serializer = UserUploadSerializer(data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("Added To Cart", status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request):
+        user_uploads = UserUpload.objects.all()
+        serializer = UserUploadSerializer(user_uploads, many=True)
+        response = {"Names": serializer.data}
+        return Response(response,status=status.HTTP_200_OK)
+
+
+
+class SubCategoryView(APIView):    
+    def get(self, request):
+        subCategory = SubCategory.objects.all()
+        serializer = SubCategorySerializer(subCategory, many=True)
+        response = {"Names": serializer.data}
+        return Response(response,status=status.HTTP_200_OK)
+
 
