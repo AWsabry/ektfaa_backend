@@ -5,6 +5,10 @@ from django.conf import settings
 
  
 
+choices = [
+    ('Pending', 'Pending'),
+    ('Publish', 'Publish'),
+]
 
 class Tags(models.Model):
     english_name = models.CharField(max_length = 250, blank = True, null= True)
@@ -103,9 +107,10 @@ class Product(models.Model):
     range_of_prices = models.CharField(max_length = 250, blank = True, null= True)
     year_of_import = models.CharField(max_length = 250, blank = True, null= True)
     created = models.DateTimeField(auto_now_add=True)
-    productslug = models.SlugField(unique=True, db_index=True,blank=True,null = True)
     description = models.TextField(blank=True,null=True)
     avoid = models.BooleanField(default=True)
+    rate = models.FloatField(default=0.0, null=True, blank=True,max_length=5)
+
 
     def __str__(self):
         arabic_string = self.product_arabic_name
@@ -136,3 +141,20 @@ class UserUpload(models.Model):
     
     class Meta:
         verbose_name_plural = "User Uploads"
+
+
+class Rating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,null=True,related_name='userRate')
+    product = models.ForeignKey(Product,
+                             on_delete=models.CASCADE,null=True,related_name='product')
+    status = models.CharField(max_length=20, choices=choices, default='Pending')
+    comment = models.TextField(blank=True,null=True)
+    rate = models.FloatField(default=0.0, null=True, blank=True,max_length=5)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.user)
+    
+    class Meta:
+        verbose_name_plural = "Rating"

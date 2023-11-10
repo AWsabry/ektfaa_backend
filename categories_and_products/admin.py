@@ -1,5 +1,5 @@
 from django.contrib import admin
-from categories_and_products.models import Category, Product,Company, SubCategory,Sector,Tags,UserUpload
+from categories_and_products.models import Category, Product,Company, SubCategory,Sector,Tags,UserUpload,Rating
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources, fields
@@ -27,6 +27,11 @@ class ProductsData(resources.ModelResource):
     class Meta:
         model = Product
 
+
+class RatingAdminInline(admin.TabularInline):
+    model = Rating
+    list_display = ('id','status','created')
+    list_filter = ('product__product_english_name','created',)
 
 class CompanyAdmin(ImportExportModelAdmin):
     resources_classes = [CompanyData]
@@ -60,13 +65,15 @@ class ProductAdmin(ImportExportModelAdmin):
     list_display = ('product_english_name', 'product_arabic_name', 'sub_category', 'company', 'created')
     list_filter = ('created', 'sub_category', 'company')
     search_fields = ('product_english_name', 'product_arabic_name', 'sub_category__Sub_Category_English_name', 'company__englishName')
-    prepopulated_fields = {'productslug': ('product_english_name',)}
     autocomplete_fields = ['sub_category','company']
     formfield_overrides = {
         models.ManyToManyField : {'widget' : CheckboxSelectMultiple},
     }
+    inlines = [RatingAdminInline]
 
-
+class RatingAdmin(admin.ModelAdmin):
+   list_display = ('id','status','created')
+   search_fields = ('product',)
 
 class TagsAdmin(admin.ModelAdmin):
     list_display = ('english_name')
@@ -75,6 +82,8 @@ class TagsAdmin(admin.ModelAdmin):
 class UserUploadAdmin(admin.ModelAdmin):
     list_display = ('user',)
 
+    
+
 admin.site.register(Sector,SectorAdmin)
 admin.site.register(Category,CategoryAdmin)
 admin.site.register(SubCategory,SubCategoryAdmin)
@@ -82,3 +91,4 @@ admin.site.register(Product,ProductAdmin)
 admin.site.register(Company,CompanyAdmin)
 admin.site.register(Tags,)
 admin.site.register(UserUpload,UserUploadAdmin)
+admin.site.register(Rating,RatingAdmin)
